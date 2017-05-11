@@ -32,6 +32,7 @@ $python3 plot.py -f 0_1Hz.csv --ymin x軸の最小値 --ymax y軸の最大値
 ```
 
 ### グラフの例
+![0.1Hz](https://github.com/isulab/GraphPlot/blob/master/sample/graph0_1Hz.png)
 
 
 ## ボード線図の作成
@@ -62,6 +63,7 @@ $python3 bodePlot.py -f noisze.csv -p 1024
 $python3 bodePlot.py -f noisze.csv --point 1024
 ```
 ### ボード線図の例
+![noize](https://github.com/isulab/GraphPlot/blob/master/sample/Bode_plot.png)
 
 ## 読み込みファイル形式
 

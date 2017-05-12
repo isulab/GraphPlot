@@ -67,7 +67,7 @@ $python3 bodePlot.py -f noisze.csv --point 1024
 
 ## 読み込みファイル形式
 
-| time[s] | send1 | send2 | send3 | recieve1 | recieve2 | recieve3 |
+| time[s] | send front | send right | send left | recieve front | recieve right  | recieve left |
 |:-----------|------------:|:------------:|:------------:|:------------:|:------------:|:------------:|
 | 0.01 | 3049 | 5358 | 4370 | 0 | 0 | 0 |
 | 0.02 | 4566 | 1036 | 6492 | 0 | 0 | 0 |

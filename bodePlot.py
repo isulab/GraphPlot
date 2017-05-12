@@ -22,9 +22,9 @@ DT = 0.01 # サンプリング間隔 100Hz = 0.01s
 
 TIME_COLUMN_NAME = "time[s]" #time列のヘッダー名
 TIME_COLUMN_DEFAULTS = 0 #time列のヘッダー名が一致しないときの読み込む列番号
-SEND_COLUMN_NAME = "send1" #send列のヘッダー名
+SEND_COLUMN_NAME = "send front" #send列のヘッダー名
 SEND_COLUMN_DEFAULTS = 1 #send列のヘッダー名が一致しないときの読み込む列番号
-RECI_COLUMN_NAME = "recieve1" #recieve列のヘッダー名
+RECI_COLUMN_NAME = "recieve front" #recieve列のヘッダー名
 RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないときの読み込む列番号
 
 ##コマンドライン引数

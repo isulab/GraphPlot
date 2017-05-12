@@ -35,17 +35,17 @@ def loadText(filename,columnName,columnDefaluts):
 
 def draw(filename):
     x = loadText(filename, columnName="time[s]", columnDefaluts=0)
-    y1 = loadText(filename, "send1", 1)
+    y1 = loadText(filename, "send front", 1)
     plt.plot(x,y1)
-    y2 = loadText(filename, "send2", 2)
+    y2 = loadText(filename, "send right", 2)
     plt.plot(x,y2)
-    y3 = loadText(filename, "send3", 3)
+    y3 = loadText(filename, "send left", 3)
     plt.plot(x,y3)
-    y4 = loadText(filename, "recieve1", 4)
+    y4 = loadText(filename, "recieve front", 4)
     plt.plot(x,y4)
-    y5 = loadText(filename, "recieve2", 5)
+    y5 = loadText(filename, "recieve right", 5)
     plt.plot(x,y5)
-    y6 = loadText(filename, "recieve3", 6)
+    y6 = loadText(filename, "recieve left", 6)
     plt.plot(x,y6)
 
 def main():

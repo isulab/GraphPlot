@@ -20,6 +20,12 @@ N = 4096  # FFTのサンプル数
 START_ROW = 50 # サンプリングする開始位置
 DT = 0.01 # サンプリング間隔 100Hz = 0.01s
 
+TIME_COLUMN_NAME = "time[s]" #time列のヘッダー名
+TIME_COLUMN_DEFAULTS = 0 #time列のヘッダー名が一致しないときの読み込む列番号
+SEND_COLUMN_NAME = "send1" #send列のヘッダー名
+SEND_COLUMN_DEFAULTS = 1 #send列のヘッダー名が一致しないときの読み込む列番号
+RECI_COLUMN_NAME = "recieve1" #recieve列のヘッダー名
+RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないときの読み込む列番号
 
 ##コマンドライン引数
 parser = argparse.ArgumentParser()
@@ -42,14 +48,28 @@ def loadCSV(filename):
     times = []
     sends = []
     recieves = []
+    timeColumn = TIME_COLUMN_DEFAULTS
+    sendColumn = SEND_COLUMN_DEFAULTS
+    reciveColumn = RECI_COLUMN_DEFAULTS
     with open(filename) as fp:
         reader = csv.reader(fp)  # Instantiate CSV reader with file pointer.
+
+        ##headerの識別
         header = next(reader)
+        for i, head in enumerate(header):
+            if head == TIME_COLUMN_NAME:
+                timeColumn = i
+            elif head == SEND_COLUMN_NAME:
+                sendColumn = i
+            elif head == RECI_COLUMN_NAME:
+                reciveColumn = i
+
+        ##振り分け
         for r in reader:
             # Assign each field on individual variables.
-            time = r[0]
-            send = float(r[1]) - 2000 ##中心を2000にする
-            recieve = float(r[4]) - 2000
+            time = r[timeColumn]
+            send = float(r[sendColumn]) - 2000 ##中心を2000にする
+            recieve = float(r[reciveColumn]) - 2000
 
             times.append(time)
             sends.append(send)

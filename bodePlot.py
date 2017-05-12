@@ -38,8 +38,8 @@ N = args.point
 START_ROW = args.start
 if not args.filename:
     print("Please select --filename")
-    args.filename = "0_5Hz.csv"
-    # exit()
+    # args.filename = "0_5Hz.csv" ##test用
+    exit()
 
 '''
 csvを読み込む関数

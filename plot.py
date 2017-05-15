@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 parser = argparse.ArgumentParser()
@@ -7,7 +6,7 @@ parser.add_argument('--xmin', type=float, help="graph limit x min")
 parser.add_argument('--xmax', type=float, help="graph limit x max")
 parser.add_argument('--ymin', type=float, help="graph limit y min")
 parser.add_argument('--ymax', type=float, help="graph limit y max")
-parser.add_argument('--xlabel', type=str, help="graph x label", default="t[s](×1/11025)")
+parser.add_argument('--xlabel', type=str, help="graph x label", default="t[s]")
 parser.add_argument('--ylabel', type=str, help="graph y label", default="Output error[dB]")
 parser.add_argument('--all', action='store_true', help="graph limit x min")
 args = parser.parse_args()
@@ -54,10 +53,14 @@ def draw(filename):
         plt.plot(x, y1)
         y4 = loadText(filename, "recieve front", 4)
         plt.plot(x, y4)
+    return x[-1] ##時間の最大値を返す
 
 def main():
+    timelength = []
     for file in args.filename:
-        draw(file)
+        timemax = draw(file)
+        timelength.append(timemax)
+
     if args.xlabel:
         plt.xlabel(args.xlabel)
     if args.ylabel:
@@ -66,6 +69,8 @@ def main():
         plt.xlim(xmin=args.xmin)
     if args.xmax:
         plt.xlim(xmax=args.xmax)
+    else:
+        plt.xlim(xmax=max(timelength))
     if args.ymin:
         plt.ylim(ymin=args.ymin)
     if args.ymax:
@@ -73,4 +78,4 @@ def main():
     plt.show()
 
 if __name__ == '__main__':
-    main();
+    main()

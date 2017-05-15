@@ -38,7 +38,10 @@ N = args.point
 START_ROW = args.start
 if not args.filename:
     print("Please select --filename")
-    # args.filename = "randomNoise2.csv" ##test用
+    # args.filename = "0_2Hz.csv" ##test用
+    exit()
+if N % 2 != 0:
+    print("fft point is not match.")
     exit()
 
 '''
@@ -83,8 +86,11 @@ def MeanFFT(send, recieve):
     roopnum = int((len(send)-START_ROW)/N)
     yfInArray = []
     yfOutArray = []
+    if roopnum == 0:
+        print("not enough data amount for "+N+"point fft.")
+        exit()
     for i in range(0, roopnum):
-        sp = roopnum*N + START_ROW
+        sp = i*N + START_ROW
         ep = sp + N
         yfIn = np.fft.fft(send[sp:ep])
         yfOut = np.fft.fft(recieve[sp:ep])

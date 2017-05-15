@@ -38,7 +38,7 @@ N = args.point
 START_ROW = args.start
 if not args.filename:
     print("Please select --filename")
-    # args.filename = "0_5Hz.csv" ##test用
+    # args.filename = "randomNoise2.csv" ##test用
     exit()
 
 '''
@@ -77,19 +77,34 @@ def loadCSV(filename):
     return (times,sends,recieves)
 
 '''
+FFT後平均をとるメソッド
+'''
+def MeanFFT(send, recieve):
+    roopnum = int((len(send)-START_ROW)/N)
+    yfInArray = []
+    yfOutArray = []
+    for i in range(0, roopnum):
+        sp = roopnum*N + START_ROW
+        ep = sp + N
+        yfIn = np.fft.fft(send[sp:ep])
+        yfOut = np.fft.fft(recieve[sp:ep])
+        # yfIn = fftpack.fft(send[sp:ep]) / (N / 2)
+        # yfOut = fftpack.fft(recieve[sp:ep]) / (N / 2)
+
+        yfInArray.append(yfIn)
+        yfOutArray.append(yfOut)
+    return np.sum(yfInArray, axis=0),np.sum(yfOutArray, axis=0)
+'''
 メイン
 '''
 def main():
     filename = args.filename
-    time, send, receive = loadCSV(filename)
+    time, send, recieve = loadCSV(filename)
 
-    yfIn = np.fft.fft(send[START_ROW:START_ROW + N])
-    yfOut = np.fft.fft(receive[START_ROW:START_ROW + N])
-    # yfIn = fftpack.fft(send[START_ROW:START_ROW + N]) / (N / 2)
-    # yfOut = fftpack.fft(receive[START_ROW:START_ROW + N]) / (N / 2)
+    yfIn, yfOut = MeanFFT(send, recieve)
     freq = np.fft.fftfreq(N, DT)
 
-    # FRF = yfOut / yfIn
+    # FRF = yfOut / yfIn #通常の方法
     FRF = (yfOut * np.conj(yfIn)) / (yfIn * np.conj(yfIn)) #クロススペクトル法
 
     plt.figure()

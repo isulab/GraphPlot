@@ -9,6 +9,7 @@ parser.add_argument('--ymin', type=float, help="graph limit y min")
 parser.add_argument('--ymax', type=float, help="graph limit y max")
 parser.add_argument('--xlabel', type=str, help="graph x label", default="t[s](×1/11025)")
 parser.add_argument('--ylabel', type=str, help="graph y label", default="Output error[dB]")
+parser.add_argument('--all', action='store_true', help="graph limit x min")
 args = parser.parse_args()
 if not args.filename:
     print("Please select --filename")
@@ -35,18 +36,24 @@ def loadText(filename,columnName,columnDefaluts):
 
 def draw(filename):
     x = loadText(filename, columnName="time[s]", columnDefaluts=0)
-    y1 = loadText(filename, "send front", 1)
-    plt.plot(x,y1)
-    y2 = loadText(filename, "send right", 2)
-    plt.plot(x,y2)
-    y3 = loadText(filename, "send left", 3)
-    plt.plot(x,y3)
-    y4 = loadText(filename, "recieve front", 4)
-    plt.plot(x,y4)
-    y5 = loadText(filename, "recieve right", 5)
-    plt.plot(x,y5)
-    y6 = loadText(filename, "recieve left", 6)
-    plt.plot(x,y6)
+    if args.all:
+        y1 = loadText(filename, "send front", 1)
+        plt.plot(x,y1)
+        y2 = loadText(filename, "send right", 2)
+        plt.plot(x,y2)
+        y3 = loadText(filename, "send left", 3)
+        plt.plot(x,y3)
+        y4 = loadText(filename, "recieve front", 4)
+        plt.plot(x,y4)
+        y5 = loadText(filename, "recieve right", 5)
+        plt.plot(x,y5)
+        y6 = loadText(filename, "recieve left", 6)
+        plt.plot(x,y6)
+    else:
+        y1 = loadText(filename, "send front", 1)
+        plt.plot(x, y1)
+        y4 = loadText(filename, "recieve front", 4)
+        plt.plot(x, y4)
 
 def main():
     for file in args.filename:

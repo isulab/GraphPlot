@@ -18,6 +18,10 @@ import argparse
       x軸、y軸それぞれの最大値・最小値を指定することができる。
       $python3 bodePlot -f noisze.csv --xmax 10 --xmin 0
       $python3 bodePlot -f noisze.csv --ymax 10 --ymin -10
+
+      x軸を対数表示にする
+      $python3 bodePlot -f noisze.csv -l
+      $python3 bodePlot -f noisze.csv --logarithm
 '''
 
 N = 4096  # FFTのサンプル数
@@ -43,7 +47,7 @@ parser.add_argument('--yminA', type=float, help="amplitude graph limit y min")
 parser.add_argument('--ymaxA', type=float, help="amplitude graph limit y max")
 parser.add_argument('--yminP', type=float, help="phase graph limit y min")
 parser.add_argument('--ymaxP', type=float, help="phase graph limit y max")
-
+parser.add_argument('-l', '--logarithm', action='store_true', help="plot logarithm axis")
 args = parser.parse_args()
 
 N = args.point
@@ -138,8 +142,11 @@ def limitAxisYPhase():
 def plotAmplitude(freq, FRF):
     plt.figure()
     plt.subplot(2, 1, 1)  # 上から一行目にグラフを描画
-    plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
-    plt.ylabel("Amplitude")
+    if args.logarithm:
+        plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+    else:
+        plt.semilogy(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+    plt.ylabel("Amplitude[dB]")
     plt.axis("tight")
 
     limitAxisX()
@@ -150,13 +157,26 @@ def plotAmplitude(freq, FRF):
 '''
 def plotPhase(freq, FRF):
     plt.subplot(2, 1, 2)  # 上から二行目にグラフを描画
-    plt.semilogx(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
+    if args.logarithm:
+        plt.semilogx(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
+    else:
+        plt.plot(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
     plt.xlabel("Frequency[Hz]")
     plt.ylabel("Phase[deg]")
     plt.axis("tight")
     plt.ylim(-180, 180)
     limitAxisX()
     limitAxisYPhase()
+
+'''
+片対数、両対数の書き方
+plt.semilogy(x, y) # y軸が対数
+plt.semilogx(x, y) # x軸が対数
+plt.loglog(x, y) # 両対数
+ax.plot(x, y)
+ax.set_xscale("log") # あとからでも設定可能
+ax.set_yscale("log", nonposy='clip') # 負になる場合の対処．'mask'もある
+'''
 
 '''
 メイン

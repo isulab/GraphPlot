@@ -61,7 +61,25 @@ $python3 bodePlot.py -f noisze.csv -start 300
 ```
 $python3 bodePlot.py -f noisze.csv -p 1024
 $python3 bodePlot.py -f noisze.csv --point 1024
+
 ```
+
+x軸、y軸それぞれの最大値・最小値を指定することができる。
+
+```
+$python3 bodePlot -f noisze.csv --xmax 10 --xmin 0
+$python3 bodePlot -f noisze.csv --ymax 10 --ymin -10
+```
+
+x軸を対数表示にする
+
+```
+$python3 bodePlot -f noisze.csv -l
+$python3 bodePlot -f noisze.csv --logarithm
+
+```
+
+
 ### ボード線図の例
 ![noize](https://github.com/isulab/GraphPlot/blob/master/sample/Bode_plot.png)
 

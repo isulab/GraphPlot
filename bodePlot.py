@@ -14,6 +14,10 @@ import argparse
       サンプリングを開始する位置を指定する場合(指定なしだと500点)
       $python3 bodePlot -f noisze.csv -s 300
       $python3 bodePlot -f noisze.csv -start 300
+
+      x軸、y軸それぞれの最大値・最小値を指定することができる。
+      $python3 bodePlot -f noisze.csv --xmax 10 --xmin 0
+      $python3 bodePlot -f noisze.csv --ymax 10 --ymin -10
 '''
 
 N = 4096  # FFTのサンプル数
@@ -32,6 +36,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f",'--filename', type=str, help="open fileame")
 parser.add_argument("-p", "--point",type=int, help="fft point",default=4096)
 parser.add_argument("-s", "--start",type=int, help="data start point",default=500)
+
+parser.add_argument('--xmin', type=float, help="graph limit x min")
+parser.add_argument('--xmax', type=float, help="graph limit x max")
+parser.add_argument('--yminA', type=float, help="amplitude graph limit y min")
+parser.add_argument('--ymaxA', type=float, help="amplitude graph limit y max")
+parser.add_argument('--yminP', type=float, help="phase graph limit y min")
+parser.add_argument('--ymaxP', type=float, help="phase graph limit y max")
+
 args = parser.parse_args()
 
 N = args.point
@@ -100,6 +112,52 @@ def MeanFFT(send, recieve):
         yfInArray.append(yfIn)
         yfOutArray.append(yfOut)
     return np.sum(yfInArray, axis=0),np.sum(yfOutArray, axis=0)
+
+'''
+軸の最大値・最小値をリミットする関数
+'''
+def limitAxisX():
+    if args.xmin:
+        plt.xlim(xmin=args.xmin)
+    if args.xmax:
+        plt.xlim(xmax=args.xmax)
+def limitAxisYAmplitude():
+    if args.yminA:
+        plt.ylim(ymin=args.yminA)
+    if args.ymaxA:
+        plt.ylim(ymax=args.ymaxA)
+def limitAxisYPhase():
+    if args.yminP:
+        plt.ylim(ymin=args.yminP)
+    if args.ymaxP:
+        plt.ylim(ymax=args.ymaxP)
+
+'''
+振幅をplot
+'''
+def plotAmplitude(freq, FRF):
+    plt.figure()
+    plt.subplot(2, 1, 1)  # 上から一行目にグラフを描画
+    plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+    plt.ylabel("Amplitude")
+    plt.axis("tight")
+
+    limitAxisX()
+    limitAxisYAmplitude()
+
+'''
+位相をplot
+'''
+def plotPhase(freq, FRF):
+    plt.subplot(2, 1, 2)  # 上から二行目にグラフを描画
+    plt.semilogx(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
+    plt.xlabel("Frequency[Hz]")
+    plt.ylabel("Phase[deg]")
+    plt.axis("tight")
+    plt.ylim(-180, 180)
+    limitAxisX()
+    limitAxisYPhase()
+
 '''
 メイン
 '''
@@ -113,19 +171,9 @@ def main():
     # FRF = yfOut / yfIn #通常の方法
     FRF = (yfOut * np.conj(yfIn)) / (yfIn * np.conj(yfIn)) #クロススペクトル法
 
-    plt.figure()
-    plt.subplot(2,1,1) #上から一行目にグラフを描画
-    plt.loglog(freq[1:int(N/2)], np.abs(FRF[1:int(N/2)]))
-    plt.ylabel("Amplitude")
-    plt.axis("tight")
+    plotAmplitude(freq, FRF)
+    plotPhase(freq, FRF)
 
-    plt.subplot(2,1,2) #上から二行目にグラフを描画
-    plt.semilogx(freq[1:int(N/2)], np.degrees(np.angle(FRF[1:int(N/2)])))
-    plt.xlabel("Frequency[Hz]")
-    plt.ylabel("Phase[deg]")
-    plt.axis("tight")
-
-    plt.ylim(-180, 180)
     plt.show()
 
 

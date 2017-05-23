@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import csv
 import argparse
 
+'''実行例
+python3 sinBodePlot.py -fi 0_1Hz.csv 0_2Hz.csv 0_5Hz.csv 1Hz.csv 2Hz.csv 5Hz.csv -fr 0.1 0.2 0.5 1 2 5 -p 4096 2048 1024 512 512 512
+
+・-fiでファイルを選択
+・-frで周波数を選択
+・-pでFFTポイントを選択
+'''
 
 START_ROW = 50 # サンプリングする開始位置
 DT = 0.01 # サンプリング間隔 100Hz = 0.01s

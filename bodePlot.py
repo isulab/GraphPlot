@@ -96,7 +96,7 @@ def loadCSV(filename):
     return (times,sends,recieves)
 
 '''
-FFT後平均をとるメソッド
+窓関数をかけて、FFT後平均をとるメソッド
 '''
 def MeanFFT(send, recieve):
     splitNum = 4 ## N/splitNumずつシフトしていく
@@ -151,9 +151,9 @@ def plotAmplitude(freq, FRF):
     plt.figure()
     plt.subplot(2, 1, 1)  # 上から一行目にグラフを描画
     if args.linear:
-        plt.semilogy(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+        plt.plot(freq[1:int(N / 2)], 10*np.log10(np.abs(FRF[1:int(N / 2)])))
     else:
-        plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+        plt.semilogx(freq[1:int(N / 2)], 10*np.log10(np.abs(FRF[1:int(N / 2)])))
     plt.ylabel("Amplitude[dB]")
     plt.axis("tight")
 

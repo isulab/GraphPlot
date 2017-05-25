@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 ##コマンドライン引数
 parser = argparse.ArgumentParser()
 parser.add_argument("-f",'--filename', type=str, help="open fileame")
-parser.add_argument("-s", "--start",type=int, help="data start point",default=100)
+parser.add_argument("-s", "--start",type=int, help="data start point",default=210)
 args = parser.parse_args()
 
 TIME_COLUMN_NAME = "time[s]" #time列のヘッダー名
@@ -18,7 +18,7 @@ RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないとき�
 
 if not args.filename:
     print("Please select --filename")
-    args.filename = "5Hz.csv" ##test用
+    args.filename = "2Hz.csv" ##test用
     # exit()
 
 '''
@@ -73,8 +73,9 @@ def get1Cycle(data):
                     if startAmp < d:
                         return data[:j+i]
     else:
-        print("不明なデータ")
-        exit()
+        print("unknown start point")
+        return get1Cycle(data[7:])
+
 
 '''
 メイン
@@ -82,33 +83,54 @@ def get1Cycle(data):
 def main():
     filename = args.filename
     startPoint = args.start
-    time, send, recieve = loadCSV(filename)
+    loadTime, loadSend, loadtRecieve = loadCSV(filename)
 
-    startPoint = int(len(send)*(3/5))
+    startPoint = int(len(loadSend)*(3/5))
 
-    validTime = time[startPoint:]
-    sendCycle = get1Cycle(send[startPoint:])
-    recieveCycle = get1Cycle(recieve[startPoint:])
+    validTime = loadTime[startPoint:] #有効な部分
+    validSend = loadSend[startPoint:]
+    validRecieve = loadtRecieve[startPoint:]
 
-    sendAmp = np.max(sendCycle) - np.min(sendCycle)
-    recieveAmp = np.max(recieveCycle) - np.min(recieveCycle)
+    sendCycle = get1Cycle(loadSend[startPoint:])
+    recieveCycle = get1Cycle(loadtRecieve[startPoint:])
 
-    sendMaxTime = validTime[np.argmax(sendCycle)] ##1周期での最大値の点の時間
-    recieveMaxTime = validTime[np.argmax(recieveCycle)]
-    cycle = validTime[len(sendCycle)] - validTime[0]
+    cycleLength = int((len(sendCycle)+len(sendCycle))/2 + 5) #一周期の長さ、余分に持つ
+    timeCycle = loadTime[startPoint:startPoint+cycleLength]
 
-    print("sendAmp:"+str(sendAmp)+" receiveAmp:"+str(recieveAmp))
-    print("振幅比:"+str(recieveAmp/sendAmp))
-    print("周期:"+str(cycle))
-    print("位相差:" + str(recieveMaxTime - sendMaxTime)+ "[ms]")
-    print("位相差:" + str(360*(((recieveMaxTime-sendMaxTime)/cycle))) + "degree")
+    zipValidTime = zip(*[iter(validTime)] * cycleLength) #サイクル毎に分割する
+    zipSendCycle = zip(*[iter(validSend)] * cycleLength)
+    zipRecieveCycle = zip(*[iter(validRecieve)] * cycleLength)
+
+    totalSendAmp, totalRecieveAmp = [], []
+    totalPhase,totalCycle = [], []
+
+    for time,send,recieve in zip(zipValidTime, zipSendCycle, zipRecieveCycle):
+
+        sendAmp = np.max(send) - np.min(send)
+        recieveAmp = np.max(recieve) - np.min(recieve)
+        totalSendAmp.append(sendAmp),totalRecieveAmp.append(recieveAmp)
+
+        sendMaxTime = time[np.argmax(send)] ##1周期での最大値の点の時間
+        recieveMaxTime = time[np.argmax(recieve)]
+        cycle = time[-1] - time[0]
+        phase = recieveMaxTime-sendMaxTime
+        totalPhase.append(phase),totalCycle.append(cycle)
+
+    aveSendAmp, aveRecieveAmp = np.average(totalSendAmp), np.average(totalRecieveAmp)
+    avePhase, aveCycle = np.average(totalPhase), np.average(totalCycle)
+
+    print("sendAmp:"+str(aveSendAmp)+" receiveAmp:"+str(aveRecieveAmp))
+    print("振幅比:"+str(aveRecieveAmp/aveSendAmp))
+    print("周期:"+str(aveCycle))
+    print("位相差:" + str(avePhase)+ "[ms]")
+    print("位相差:" + str(360*((avePhase/aveCycle))) + "degree")
 
 
     plt.plot(validTime[:len(recieveCycle)], recieveCycle)
     plt.plot(validTime[:len(sendCycle)], sendCycle)
 
-    plt.axvline(x=sendMaxTime)
-    plt.axvline(x=recieveMaxTime)
+    plt.axvline(x=timeCycle[np.argmax(sendCycle)])
+    plt.axvline(x=timeCycle[np.argmax(recieveCycle)])
 
     plt.show()
 

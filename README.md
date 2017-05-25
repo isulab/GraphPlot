@@ -71,11 +71,10 @@ $python3 bodePlot -f noisze.csv --xmax 10 --xmin 0
 $python3 bodePlot -f noisze.csv --ymax 10 --ymin -10
 ```
 
-x軸を対数表示にする
-
+線形グラフで表示する
 ```
-$python3 bodePlot -f noisze.csv -l
-$python3 bodePlot -f noisze.csv --logarithm
+$python3 bodePlot -f noisze.csv -li
+$python3 bodePlot -f noisze.csv --linear
 
 ```
 

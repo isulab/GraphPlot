@@ -47,15 +47,15 @@ parser.add_argument('--yminA', type=float, help="amplitude graph limit y min")
 parser.add_argument('--ymaxA', type=float, help="amplitude graph limit y max")
 parser.add_argument('--yminP', type=float, help="phase graph limit y min")
 parser.add_argument('--ymaxP', type=float, help="phase graph limit y max")
-parser.add_argument('-l', '--logarithm', action='store_true', help="plot logarithm axis")
+parser.add_argument('-li', '--linear', action='store_true', help="plot linear axis")
 args = parser.parse_args()
 
 N = args.point
 START_ROW = args.start
 if not args.filename:
     print("Please select --filename")
-    # args.filename = "randomNoise8min.csv" ##test用
-    exit()
+    args.filename = "randomNoise8min.csv" ##test用
+    # exit()
 if N % 2 != 0:
     print("fft point is not match.")
     exit()
@@ -99,22 +99,30 @@ def loadCSV(filename):
 FFT後平均をとるメソッド
 '''
 def MeanFFT(send, recieve):
-    roopnum = int((len(send)-START_ROW)/N)
+    splitNum = 4 ## N/splitNumずつシフトしていく
+    shiftCount = int(N/splitNum)
+    roopnum = int((len(send)-START_ROW)/shiftCount) - (splitNum-1)
     yfInArray = []
     yfOutArray = []
     if roopnum == 0:
         print("not enough data amount for "+str(N)+"point fft.")
         exit()
     for i in range(0, roopnum):
-        sp = i*N + START_ROW
+        sp = i*shiftCount + START_ROW
         ep = sp + N
-        yfIn = np.fft.fft(send[sp:ep])
-        yfOut = np.fft.fft(recieve[sp:ep])
+
+        hammingWindow = np.hamming(N) ##ハミング窓をかける
+        windSend = hammingWindow * send[sp:ep]
+        windRecieve = hammingWindow * recieve[sp:ep]
+
+        yfIn = np.fft.fft(windSend)
+        yfOut = np.fft.fft(windRecieve)
         # yfIn = fftpack.fft(send[sp:ep]) / (N / 2)
         # yfOut = fftpack.fft(recieve[sp:ep]) / (N / 2)
 
         yfInArray.append(yfIn)
         yfOutArray.append(yfOut)
+    print(str(roopnum)+"回平均")
     return np.sum(yfInArray, axis=0),np.sum(yfOutArray, axis=0)
 
 '''
@@ -142,10 +150,10 @@ def limitAxisYPhase():
 def plotAmplitude(freq, FRF):
     plt.figure()
     plt.subplot(2, 1, 1)  # 上から一行目にグラフを描画
-    if args.logarithm:
-        plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
-    else:
+    if args.linear:
         plt.semilogy(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
+    else:
+        plt.loglog(freq[1:int(N / 2)], np.abs(FRF[1:int(N / 2)]))
     plt.ylabel("Amplitude[dB]")
     plt.axis("tight")
 
@@ -157,10 +165,10 @@ def plotAmplitude(freq, FRF):
 '''
 def plotPhase(freq, FRF):
     plt.subplot(2, 1, 2)  # 上から二行目にグラフを描画
-    if args.logarithm:
-        plt.semilogx(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
-    else:
+    if args.linear:
         plt.plot(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
+    else:
+        plt.semilogx(freq[1:int(N / 2)], np.degrees(np.angle(FRF[1:int(N / 2)])))
     plt.xlabel("Frequency[Hz]")
     plt.ylabel("Phase[deg]")
     plt.axis("tight")

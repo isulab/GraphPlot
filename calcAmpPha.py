@@ -18,8 +18,8 @@ RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないとき�
 
 if not args.filename:
     print("Please select --filename")
-    args.filename = "2Hz.csv" ##test用
-    # exit()
+    # args.filename = "2Hz.csv" ##test用
+    exit()
 
 '''
 csvを読み込む関数

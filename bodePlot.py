@@ -22,6 +22,12 @@ import argparse
       線形グラフで表示する
       $python3 bodePlot -f noisze.csv -li
       $python3 bodePlot -f noisze.csv --linear
+
+      シフトする数を指定する
+      $python3 bodePlot -f noisze.csv --shift 5
+
+      ブラックマンの窓関数をかける
+      $python3 bodePlot -f noisze.csv --blackman
 '''
 
 N = 4096  # FFTのサンプル数
@@ -40,6 +46,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f",'--filename', type=str, help="open fileame")
 parser.add_argument("-p", "--point",type=int, help="fft point",default=4096)
 parser.add_argument("-s", "--start",type=int, help="data start point",default=500)
+parser.add_argument("--shift", type=int, help="data shift num", default=4)
+parser.add_argument("--blackman", action='store_true', help="use brackman window")
 
 parser.add_argument('--xmin', type=float, help="graph limit x min")
 parser.add_argument('--xmax', type=float, help="graph limit x max")
@@ -54,8 +62,8 @@ N = args.point
 START_ROW = args.start
 if not args.filename:
     print("Please select --filename")
-    args.filename = "randomNoise8min.csv" ##test用
-    # exit()
+    # args.filename = "randomNoise8min.csv" ##test用
+    exit()
 if N % 2 != 0:
     print("fft point is not match.")
     exit()
@@ -99,7 +107,7 @@ def loadCSV(filename):
 窓関数をかけて、FFT後平均をとるメソッド
 '''
 def MeanFFT(send, recieve):
-    splitNum = 4 ## N/splitNumずつシフトしていく
+    splitNum = args.shift ## N/splitNumずつシフトしていく
     shiftCount = int(N/splitNum)
     roopnum = int((len(send)-START_ROW)/shiftCount) - (splitNum-1)
     yfInArray = []
@@ -111,9 +119,12 @@ def MeanFFT(send, recieve):
         sp = i*shiftCount + START_ROW
         ep = sp + N
 
-        hammingWindow = np.hamming(N) ##ハミング窓をかける
-        windSend = hammingWindow * send[sp:ep]
-        windRecieve = hammingWindow * recieve[sp:ep]
+        window = np.hamming(N) ##ハミング窓をかける
+        if args.blackman:
+            window = np.blackman(N)
+
+        windSend = window * send[sp:ep]
+        windRecieve = window * recieve[sp:ep]
 
         yfIn = np.fft.fft(windSend)
         yfOut = np.fft.fft(windRecieve)

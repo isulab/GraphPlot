@@ -2,6 +2,7 @@ import numpy as np
 import csv
 import argparse
 import matplotlib.pyplot as plt
+from scipy import stats
 
 ##コマンドライン引数
 parser = argparse.ArgumentParser()
@@ -18,8 +19,8 @@ RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないとき�
 
 if not args.filename:
     print("Please select --filename")
-    # args.filename = "2Hz.csv" ##test用
-    exit()
+    args.filename = "5Hz.csv" ##test用
+    # exit()
 
 '''
 csvを読み込む関数
@@ -76,7 +77,22 @@ def get1Cycle(data):
         print("unknown start point")
         return get1Cycle(data[7:])
 
+def iqr(data):
+    # 四分位範囲を計算
+    data_q1 = stats.scoreatpercentile(data, 25)  # 第一四分位数（=25パーセンタイル）
+    data_q3 = stats.scoreatpercentile(data, 75)  # 第三四分位数（=75パーセンタイル）
+    data_iqr = data_q3 - data_q1  # 四分位範囲
 
+    # 外れ値の範囲を計算する
+    data_iqr_min = data_q1 - (data_iqr) * 1.5  # 第一四分位数 から四分位範囲（iqr*1.5）を引き算。
+    data_iqr_max = data_q3 + (data_iqr) * 1.5  # 第一四分位数 から四分位範囲（iqr*1.5）を。
+
+    # 範囲から外れている値を除く
+    returndata = []
+    for d in data:
+        if(d>data_iqr_min and d<data_iqr_max):
+            returndata.append(d)
+    return returndata
 '''
 メイン
 '''
@@ -117,7 +133,7 @@ def main():
         totalPhase.append(phase),totalCycle.append(cycle)
 
     aveSendAmp, aveRecieveAmp = np.average(totalSendAmp), np.average(totalRecieveAmp)
-    avePhase, aveCycle = np.average(totalPhase), np.average(totalCycle)
+    avePhase, aveCycle = np.average(iqr(totalPhase)), np.average(iqr(totalCycle))
 
     print("sendAmp:"+str(aveSendAmp)+" receiveAmp:"+str(aveRecieveAmp))
     print("振幅比:"+str(aveRecieveAmp/aveSendAmp))

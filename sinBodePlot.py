@@ -24,6 +24,8 @@ RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないとき�
 ##コマンドライン引数
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--start",type=int, help="data start point",default=0)
+parser.add_argument("--shift", type=int, help="data shift num", default=4)
+parser.add_argument("--blackman", action='store_true', help="use brackman window")
 
 parser.add_argument('--xmin', type=float, help="graph limit x min")
 parser.add_argument('--xmax', type=float, help="graph limit x max")
@@ -85,25 +87,36 @@ def loadCSV(filename):
     return (times,sends,recieves)
 
 '''
-FFT後平均をとるメソッド
+窓関数をかけて、FFT後平均をとるメソッド
 '''
 def MeanFFT(send, recieve, N):
-    roopnum = int((len(send)-START_ROW)/N)
+    splitNum = args.shift ## N/splitNumずつシフトしていく
+    shiftCount = int(N/splitNum)
+    roopnum = int((len(send)-START_ROW)/shiftCount) - (splitNum-1)
     yfInArray = []
     yfOutArray = []
     if roopnum == 0:
         print("not enough data amount for "+str(N)+"point fft.")
         exit()
     for i in range(0, roopnum):
-        sp = i*N + START_ROW
+        sp = i*shiftCount + START_ROW
         ep = sp + N
-        yfIn = np.fft.fft(send[sp:ep])
-        yfOut = np.fft.fft(recieve[sp:ep])
+
+        window = np.hamming(N) ##ハミング窓をかける
+        if args.blackman:
+            window = np.blackman(N)
+
+        windSend = window * send[sp:ep]
+        windRecieve = window * recieve[sp:ep]
+
+        yfIn = np.fft.fft(windSend)
+        yfOut = np.fft.fft(windRecieve)
         # yfIn = fftpack.fft(send[sp:ep]) / (N / 2)
         # yfOut = fftpack.fft(recieve[sp:ep]) / (N / 2)
 
         yfInArray.append(yfIn)
         yfOutArray.append(yfOut)
+    print(str(roopnum)+"回平均")
     return np.sum(yfInArray, axis=0),np.sum(yfOutArray, axis=0)
 
 '''

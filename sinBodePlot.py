@@ -33,7 +33,7 @@ parser.add_argument('--yminA', type=float, help="amplitude graph limit y min")
 parser.add_argument('--ymaxA', type=float, help="amplitude graph limit y max")
 parser.add_argument('--yminP', type=float, help="phase graph limit y min")
 parser.add_argument('--ymaxP', type=float, help="phase graph limit y max")
-parser.add_argument('-l', '--logarithm', action='store_true', help="plot logarithm axis")
+parser.add_argument('-li', '--linear', action='store_true', help="plot linear axis")
 
 parser.add_argument('-fi', '--filename', type=str, nargs='+', help="open fileame")
 parser.add_argument('-fr', '--frequent', type=float, nargs='+', help="input open file's frequent")
@@ -45,7 +45,7 @@ print(args.filename)
 START_ROW = args.start
 if len(args.filename) != len(args.frequent):
     print("not match number of file and frequent.")
-    # exit()
+    exit()
 for n in args.points:
     if n % 2 != 0:
         print("fft point is not match.")
@@ -144,10 +144,10 @@ def limitAxisYPhase():
 def plotAmplitude(freq, FRF):
     plt.figure()
     plt.subplot(2, 1, 1)  # 上から一行目にグラフを描画
-    if args.logarithm:
-        plt.loglog(freq, np.abs(FRF),"r--o")
+    if args.linear:
+        plt.plot(freq, 10*np.log10(np.abs(FRF)),"r--o")
     else:
-        plt.semilogy(freq, np.abs(FRF),"r--o")
+        plt.semilogx(freq, 10*np.log10(np.abs(FRF)),"r--o")
     plt.ylabel("Amplitude[dB]")
     plt.axis("tight")
 
@@ -159,10 +159,10 @@ def plotAmplitude(freq, FRF):
 '''
 def plotPhase(freq, FRF):
     plt.subplot(2, 1, 2)  # 上から二行目にグラフを描画
-    if args.logarithm:
-        plt.semilogx(freq, np.degrees(np.angle(FRF)),"r--o")
-    else:
+    if args.linear:
         plt.plot(freq, np.degrees(np.angle(FRF)),"r--o")
+    else:
+        plt.semilogx(freq, np.degrees(np.angle(FRF)),"r--o")
     plt.xlabel("Frequency[Hz]")
     plt.ylabel("Phase[deg]")
     plt.axis("tight")

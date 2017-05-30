@@ -242,7 +242,7 @@ def sinbode():
         # FRF = yfOut / yfIn #通常の方法
         FRF = (yfOut * np.conj(yfIn)) / (yfIn * np.conj(yfIn))  # クロススペクトル法
 
-        plotNum = np.searchsorted(freq[1:int(point / 2)], fre)  # プロットする周波数に近いインデックスを取得
+        plotNum = np.searchsorted(freq[0:int(point / 2)], fre)  # プロットする周波数に近いインデックスを取得
         plotFreq.append(freq[plotNum])
         plotFRF.append(FRF[plotNum])
 

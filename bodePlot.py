@@ -106,7 +106,7 @@ def loadCSV(filename):
 '''
 窓関数をかけて、FFT後平均をとるメソッド
 '''
-def MeanFFT(send, recieve):
+def MeanFFT(send, recieve,N):
     splitNum = args.shift ## N/splitNumずつシフトしていく
     shiftCount = int(N/splitNum)
     roopnum = int((len(send)-START_ROW)/shiftCount) - (splitNum-1)
@@ -204,7 +204,7 @@ def main():
     filename = args.filename
     time, send, recieve = loadCSV(filename)
 
-    yfIn, yfOut = MeanFFT(send, recieve)
+    yfIn, yfOut = MeanFFT(send, recieve,N)
     freq = np.fft.fftfreq(N, DT)
 
     # FRF = yfOut / yfIn #通常の方法

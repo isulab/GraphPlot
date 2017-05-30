@@ -7,7 +7,7 @@ from scipy import stats
 ##コマンドライン引数
 parser = argparse.ArgumentParser()
 parser.add_argument("-f",'--filename', type=str, help="open fileame")
-parser.add_argument("-s", "--start",type=int, help="data start point",default=210)
+parser.add_argument("-s", "--start",type=int, help="data start point",default=5)
 args = parser.parse_args()
 
 TIME_COLUMN_NAME = "time[s]" #time列のヘッダー名
@@ -19,7 +19,7 @@ RECI_COLUMN_DEFAULTS = 4 #recieve列のヘッダー名が一致しないとき�
 
 if not args.filename:
     print("Please select --filename")
-    args.filename = "5Hz.csv" ##test用
+    args.filename = "1Hz.csv" ##test用
     # exit()
 
 '''
@@ -49,8 +49,8 @@ def loadCSV(filename):
         for r in reader:
             # Assign each field on individual variables.
             time = float(r[timeColumn])
-            send = float(r[sendColumn]) - 2000 ##中心を2000にする
-            recieve = float(r[reciveColumn]) - 2000
+            send = float(r[sendColumn])# - 2000 ##中心を2000にする
+            recieve = float(r[reciveColumn])# - 2000
 
             times.append(time)
             sends.append(send)
@@ -98,10 +98,9 @@ def iqr(data):
 '''
 def main():
     filename = args.filename
-    startPoint = args.start
     loadTime, loadSend, loadtRecieve = loadCSV(filename)
 
-    startPoint = int(len(loadSend)*(3/5))
+    startPoint = int(len(loadSend)*(3/5)) + args.start
 
     validTime = loadTime[startPoint:] #有効な部分
     validSend = loadSend[startPoint:]
@@ -133,13 +132,21 @@ def main():
         totalPhase.append(phase),totalCycle.append(cycle)
 
     aveSendAmp, aveRecieveAmp = np.average(totalSendAmp), np.average(totalRecieveAmp)
-    avePhase, aveCycle = np.average(iqr(totalPhase)), np.average(iqr(totalCycle))
+    avePhase, aveCycle = np.average(totalPhase), np.average(totalCycle)
 
-    print("sendAmp:"+str(aveSendAmp)+" receiveAmp:"+str(aveRecieveAmp))
-    print("振幅比:"+str(aveRecieveAmp/aveSendAmp))
-    print("周期:"+str(aveCycle))
-    print("位相差:" + str(avePhase)+ "[ms]")
-    print("位相差:" + str(360*((avePhase/aveCycle))) + "degree")
+    print("第一周期目")
+    print("sendAmp:"+str(totalSendAmp[0])+" receiveAmp:"+str(totalRecieveAmp[0]))
+    print("振幅比:"+str(totalRecieveAmp[0]/totalSendAmp[0]))
+    print("周期:"+str(totalCycle[0]))
+    print("位相差:" + str(totalPhase[0])+ "[ms]")
+    print("位相差:" + str(360*((totalPhase[0]/totalCycle[0]))) + "degree")
+
+    print("平均")
+    print("sendAmp:" + str(aveSendAmp) + " 平均receiveAmp:" + str(aveRecieveAmp))
+    print("平均振幅比:" + str(aveRecieveAmp / aveSendAmp))
+    print("平均周期:" + str(aveCycle))
+    print("平均位相差:" + str(avePhase) + "[ms]")
+    print("平均位相差:" + str(360 * ((avePhase / aveCycle))) + "degree")
 
 
     plt.plot(validTime[:len(recieveCycle)], recieveCycle)

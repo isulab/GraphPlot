@@ -78,8 +78,8 @@ def loadCSV(filename):
         for r in reader:
             # Assign each field on individual variables.
             time = r[timeColumn]
-            send = float(r[sendColumn]) - 2000 ##中心を2000にする
-            recieve = float(r[reciveColumn]) - 2000
+            send = float(r[sendColumn])# - 2000 ##中心を2000にする
+            recieve = float(r[reciveColumn])# - 2000
 
             times.append(time)
             sends.append(send)

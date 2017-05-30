@@ -95,8 +95,8 @@ def loadCSV(filename):
         for r in reader:
             # Assign each field on individual variables.
             time = r[timeColumn]
-            send = float(r[sendColumn]) - 2000 ##中心を2000にする
-            recieve = float(r[reciveColumn]) - 2000
+            send = float(r[sendColumn])# - 2000 ##中心を2000にする
+            recieve = float(r[reciveColumn])# - 2000
 
             times.append(time)
             sends.append(send)
@@ -230,7 +230,7 @@ ax.set_yscale("log", nonposy='clip') # 負になる場合の対処．'mask'も�
 def sinbode():
     filenames = ["0_1Hz.csv", "0_2Hz.csv", "0_5Hz.csv", "1Hz.csv", "2Hz.csv", "5Hz.csv"]
     frequents = [0.1, 0.2, 0.5, 1, 2, 5]
-    fftpoints = [4096, 2048, 1024, 512, 512, 512]
+    fftpoints = [4096, 4096, 4096, 4096, 4096, 4096]
     plotFreq = []
     plotFRF = []
     for (fn, fre, point) in zip(filenames, frequents, fftpoints):
@@ -264,11 +264,11 @@ def main():
     plotFreq, plotFRF = sinbode()
     freq, FRF = bode()
 
-    plotAmplitude(freq[1:int(N / 2)], FRF[1:int(N / 2)])
+    plotAmplitude(freq[0:int(N / 2)], FRF[0:int(N / 2)])
     plotAmplitude2(plotFreq, plotFRF)
 
 
-    plotPhase(freq[1:int(N / 2)], FRF[1:int(N / 2)])
+    plotPhase(freq[0:int(N / 2)], FRF[0:int(N / 2)])
     plotPhase2(plotFreq, plotFRF)
 
     plt.show()
